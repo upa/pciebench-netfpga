@@ -95,10 +95,10 @@ uint64_t hugepage_size()
         if (err == -1) {
           return 0;
         }
-        //printf("Size = %ld\n", 2*1024);
+        printf("Size = %ld\n", 2*1024);
         return 2048;
       } else {
-        //printf("Size = %ld\n", 1024*1024*1024);
+        printf("Size = %ld\n", 1024*1024*1024);
         return 1024 * 1024 * 1024;
       }
     } else {

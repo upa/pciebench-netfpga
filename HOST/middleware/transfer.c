@@ -34,6 +34,8 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 
+#include <libpop.h>
+
 static struct hugepage hp; /**< Local variable that stores the fields associated to the current map */
 
 uint32_t writeWord (uint8_t bar, uint32_t offset, uint32_t data)
@@ -101,13 +103,63 @@ void *getFreeHugePages(uint32_t npages)
   db.length = tsize;
   db.n_hp = npages;
 
+  printf("before: db.data is %p\n", db.data);
 
   /* Comunicate driver the initial setup */
   /* di must point to the region of data and indicates its length */
   ioctl (fd, NFPIOC_REGISTER_BUFFER, &db);
+
+  printf("after: db.data is %p\n", db.data);
+
   return hp.data;
 }
 
+void *getFreePopPages(char *pop_pci)
+{
+  int ret;
+  struct dma_buffer db;
+  int fd = getCharDeviceDescriptor();
+
+  pop_mem_t *mem;
+  pop_buf_t *buf;
+  size_t size;
+
+  size = pop_size;
+
+  printf("pop_mem_init\n");
+  mem = pop_mem_init(pop_pci, size);
+  if (!mem) {
+    perror("pop_mem_init");
+    rte_exit(-1, "pop mem alloc error\n");
+  }
+
+  printf("pop_buf_alloc\n");
+  buf = pop_buf_alloc(mem, size);
+
+  printf("pop_buf_put");
+  pop_buf_put(buf, size);
+
+  printf("pop_buf_put finished");
+
+  db.is_hp = 1;
+  db.data = pop_buf_data(buf);
+  db.hp_size = size;
+  db.length = size;
+  db.n_hp = 1;
+
+  /* Comunicate driver the initial setup */
+  /* di must point to the region of data and indicates its length */
+  printf("%s: start ioctl\n", __func__);
+
+  ret = ioctl (fd, NFPIOC_REGISTER_BUFFER, &db);
+  if (ret < 0) {
+    perror("ioctl");
+    rte_exit(-1, "ioctl NFPIOC_REGISTER_BUFFER failed\n");
+  }
+
+  printf("%s: finished\n", __func__);
+  return pop_buf_data(buf);
+}
 
 void unsetHugeFreePages(void *address, uint32_t npages)
 {

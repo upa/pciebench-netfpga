@@ -95,6 +95,15 @@ void *getFreePages(uint32_t npages);
 void *getFreeHugePages(uint32_t npages);
 
 /**
+ * @bried 
+ * @param allocate memory from libpop.
+ * @return The pointer to the buffer in userspace. NULL if it is
+ * impossible to obtain such buffer
+ */
+void *getFreePopPages(char *pop_pci);
+#define pop_size (1024 * 1024 * 16)
+
+/**
  * @brief Free a previously allocated buffer in kernel space
  *
  * @param address Returned address by getFreePages

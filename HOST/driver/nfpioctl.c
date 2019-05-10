@@ -180,12 +180,25 @@ long nfp_ioctl (struct file *f, unsigned int cmd, unsigned long arg)
     break;
 
   case NFPIOC_READ_DMA_DESCRIPTOR:
+	  /*
+	  pr_info("dma read: dd.address is %llx\n", dd.address);
+	  pr_info("dma read: dd.length  is %llu\n", dd.length);
+	  pr_info("dma read: card->buffer.page_size is %llu\n", card->buffer.page_size);
+	  pr_info("(dd.address + dd.length) / card->buffer.page_size is %llu\n", (dd.address + dd.length) / card->buffer.page_size);
+	  pr_info("dd.address / card->buffer.page_size is %llu\n", dd.address / card->buffer.page_size);
+	  */
+
     if (card->buffer.virtual == NULL) { // Mmap buffer
       dd.address = (u64) ( (u8 *) card->mmap_info.page_list + (card->mmap_info.first + (u64)dd.address)); // Use the page indicated by the user (and calculate the kernel direction from the internal buffer)
+      pr_info("huga\n");
     } else if ((dd.address + dd.length) / card->buffer.page_size == dd.address / card->buffer.page_size) { //We do not exceed a huge page (take care of offsets)
+	    //pr_info("xxxxxxxxxx before: dd.address is %llx\n", dd.address);
       dd.address = card->buffer.page_address[(u64)dd.address / card->buffer.page_size] + (u64)dd.address % card->buffer.page_size;
+      //pr_info("xxxxxxxxxx after: dd.address is %llx\n", dd.address);
     } else {
       printk(KERN_ERR "nfp: Error while computing the physical address of the memory");
+      pr_err("dd.address is 0x%llx\n", dd.address);
+      pr_err("card->buffer.virtual is %p\n", card->buffer.virtual);
       break;
     }
 
@@ -198,6 +211,7 @@ long nfp_ioctl (struct file *f, unsigned int cmd, unsigned long arg)
     break;
 
   case NFPIOC_REGISTER_BUFFER:
+	  pr_info("%s: db->data is %p\n", __func__, (void *)db.data);
     reg_hugemem(card, &db);
     break;
 

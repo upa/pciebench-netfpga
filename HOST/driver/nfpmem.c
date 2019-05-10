@@ -112,6 +112,8 @@ static int getUserHugePages (struct dma_buffer *db, struct nfp_card *card, struc
     card->buffer.page_address[i] = (u64) page_address (pag[db->hp_size / PAGE_SIZE * i]);
   }
 
+  pr_info("%s: db->data is %p, length is %llu\n", __func__, (void *)db->data, db->length);
+
   card->buffer.npages = num_huge_pages;
   card->buffer.virtual = (void *)db->data;
   card->buffer.length =  db->length;

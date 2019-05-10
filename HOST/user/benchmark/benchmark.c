@@ -115,6 +115,7 @@ struct arguments {
   uint8_t           cache;
   union properties  prop;
   char*             file_name;
+  char*	            pop_pci;
 }; /**< Global variable with the user arguments */
 
 
@@ -126,7 +127,7 @@ struct arguments {
 void printUsage()
 {
   printf ("This program has sveral modes of usage:\n"
-          "· $benchmark -t <TEST_TYPE> -d <DIR> -p <PATTERN> [properties] -n <BYTES> -l <NITERS> [-w <WINDOW_SIZE>]  [-c <CACHE_OPTIONS>] [-f <LOGFILE>]\n"
+          "· $benchmark -t <TEST_TYPE> -d <DIR> -p <PATTERN> [properties] -n <BYTES> -l <NITERS> [-w <WINDOW_SIZE>]  [-c <CACHE_OPTIONS>] [-f <LOGFILE>] [-P <PCI Slot>]\n"
           "\tWhere \n"
           "\t\t <TEST_TYPE> can be lat or bw: \n"
           "\t\t\tlat represents Latency test \n"
@@ -191,7 +192,7 @@ static int readArguments (int argc, char **argv, struct arguments *arg)
 {
   int i;
 
-  if (argc < 2 || argc > 18) {
+  if (argc < 2 || argc > 20) {
     return -1;
   }
 
@@ -263,6 +264,12 @@ static int readArguments (int argc, char **argv, struct arguments *arg)
       } else {
         return -1;
       }
+    } else if (!strcmp (argv[i], "-P")) {
+      i++;
+      if (strcmp(argv[i], "hugepage") == 0)
+	  arg->pop_pci = NULL;
+      else
+	  arg->pop_pci = argv[i];
     } else {
       return -1;
     }
@@ -333,8 +340,17 @@ int main(int argc, char **argv)
 
 
 #ifdef USE_HUGE_PAGES
-  pmem = getFreeHugePages(NUMBER_PAGES);
-  total_size = NUMBER_PAGES ? NUMBER_PAGES * hugepage_size() : hugepage_number() * hugepage_size();
+  if (!args.pop_pci) {
+    printf("getFreeHugePages\n");
+    pmem = getFreeHugePages(NUMBER_PAGES);
+    total_size = NUMBER_PAGES ?
+      NUMBER_PAGES * hugepage_size() : hugepage_number() * hugepage_size();
+  } else {
+	  printf("ok, use boogiepop from %s\n", args.pop_pci);
+      pmem = getFreePopPages(args.pop_pci);
+      total_size = pop_size;	/* yeah, hard coded. 512MB */
+      printf("pop returns %p\n", pmem);
+    }
 #else
   pmem = getFreePages(NUMBER_PAGES); // Get a buffer in kernel space (NPAGES*PAGE_SIZE = NPAGES*1GB)
   total_size = NUMBER_PAGES * KERNEL_PAGE_SIZE;
@@ -477,7 +493,8 @@ int main(int argc, char **argv)
   fclose(fname);
 // Free the memory
 #ifdef USE_HUGE_PAGES
-  unsetHugeFreePages(pmem, NUMBER_PAGES );
+  if (!args.pop_pci)
+    unsetHugeFreePages(pmem, NUMBER_PAGES );
 #else
   unsetFreePages(pmem, NUMBER_PAGES );
 #endif

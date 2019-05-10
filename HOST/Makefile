@@ -30,6 +30,7 @@ CPLUS=g++
 EXEC1=rwBar
 EXEC3=benchmark
 
+BOOGIEPOP=/home/upa/work/boogiepop
 
 
 ARCHIVE_PREFIX=nfp_driver
@@ -37,7 +38,7 @@ ARCHIVE_SUFFIX=$(shell date "+%Y_%m_%d")
 ARCHIVE=$(ARCHIVE_PREFIX)-$(ARCHIVE_SUFFIX)
 
 #Use _GNU_SOURCE for O_DIRECT flag
-CXXFLAGS += -Wall -pthread   -D_GNU_SOURCE # -g
+CXXFLAGS += -Wall -pthread -D_GNU_SOURCE -I$(BOOGIEPOP)/include # -g
 COPTFLAGS =   -O3
 
 SRC = middleware/init.c middleware/debug.c middleware/huge_page.c middleware/transfer.c  #List of all .c of the user example.
@@ -46,12 +47,12 @@ OBJ = $(SRC:.c=.o)
 
 SRC1 = user/rwBar/rwBar.c
 OBJ1 = $(SRC1:.c=.o)
-LINKER_FLAGS1= -o ./bin/$(EXEC1) -lm
+LINKER_FLAGS1= -o ./bin/$(EXEC1) -lm -L$(BOOGIEPOP)/lib -lpop
 DRIVER_PATH=middleware
 
 SRC3 = user/benchmark/benchmark.c
 OBJ3 = $(SRC3:.c=.o)
-LINKER_FLAGS3= -o ./bin/$(EXEC3) -lm
+LINKER_FLAGS3= -o ./bin/$(EXEC3) -lm -L$(BOOGIEPOP)/lib -lpop
 
 all: rwBar benchmark driver
 
