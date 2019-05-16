@@ -12,7 +12,7 @@ matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
 lines = { "linewidth" : linewidth,
-          "markersize" : markersize,
+          "markersize" : markersize * 0.8,
           "markeredgewidth" : linewidth, }
 markers = { "fillstyle" : "none", }
 plt.rc("lines", **lines)
@@ -39,7 +39,8 @@ def main():
     fig, ax = plt.subplots()
     
     bytelens = [ 8, 16, 32, 64, 128, 256, 512 ]
-    xaxis = list(range(len(bytelens)))
+    #xaxis = list(range(len(bytelens)))
+    xaxis = bytelens
 
     # Dram, DMA Write DMA Read
     dram = []
@@ -55,7 +56,7 @@ def main():
     print(p2pm)
 
     ax.plot(xaxis, dram, marker = get_marker(), color = get_color(),
-            label = "DRAM PCIe Write/Read")
+            label = "DRAM PCIe Read/Write")
     ax.plot(xaxis, p2pm, marker = get_marker(), color = get_color(),
             label = "p2pmem PCIe Read")
 
@@ -67,7 +68,9 @@ def main():
     ax.grid(True, linestyle = "--", linewidth = 0.5)
     ax.legend(fontsize = lfontsize)
 
-    change_aspect_ratio(ax, 2)
+    ax.set_xticks([8, 64, 128, 256, 512])
+
+    change_aspect_ratio(ax, 1)
 
     plt.savefig("graph_pciebench.pdf",
                 bbox_inches = "tight", pad_inches = 0.05)
