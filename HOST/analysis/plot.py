@@ -12,12 +12,14 @@ matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
 lines = { "linewidth" : linewidth,
-          "markersize" : markersize * 0.8,
+          "markersize" : markersize * 0.6,
           "markeredgewidth" : linewidth, }
 markers = { "fillstyle" : "none", }
 plt.rc("lines", **lines)
 plt.rc("markers", **markers)
 
+fontsize = fontsize * 1.2
+lfontsize = lfontsize * 1.2
 
 def parse(filename):
 
@@ -55,14 +57,14 @@ def main():
     print(dram)
     print(p2pm)
 
-    ax.plot(xaxis, dram, marker = get_marker(), color = get_color(),
-            label = "DRAM PCIe Read/Write")
     ax.plot(xaxis, p2pm, marker = get_marker(), color = get_color(),
-            label = "p2pmem PCIe Read")
+            label = "P2P DMA Read")
+    ax.plot(xaxis, dram, marker = get_marker(), color = get_color(),
+            label = "DMA Read/Write", linestyle = "--")
 
     plt.xticks(xaxis, bytelens)
     ax.tick_params(labelsize = fontsize)
-    ax.set_ylabel("throughput (Gbps)", fontsize = fontsize)
+    ax.set_ylabel("bandwidth (Gbps)", fontsize = fontsize)
     ax.set_xlabel("transfer size (byte)", fontsize = fontsize)
 
     ax.grid(True, linestyle = "--", linewidth = 0.5)
@@ -70,9 +72,9 @@ def main():
 
     ax.set_xticks([8, 64, 128, 256, 512])
 
-    change_aspect_ratio(ax, 1)
+    change_aspect_ratio(ax, 1.2)
 
-    plt.savefig("graph_pciebench.pdf",
+    plt.savefig("graph-pciebench.pdf",
                 bbox_inches = "tight", pad_inches = 0.05)
 
 if __name__ == "__main__":
