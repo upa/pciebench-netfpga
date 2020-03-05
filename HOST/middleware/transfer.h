@@ -101,7 +101,7 @@ void *getFreeHugePages(uint32_t npages);
  * impossible to obtain such buffer
  */
 void *getFreePopPages(char *pop_pci);
-#define pop_size (1024 * 1024 * 16)
+#define pop_size (1024 * 1024 * 256)
 
 /**
  * @brief Free a previously allocated buffer in kernel space

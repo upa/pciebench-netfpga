@@ -130,16 +130,20 @@ void *getFreePopPages(char *pop_pci)
   mem = pop_mem_init(pop_pci, size);
   if (!mem) {
     perror("pop_mem_init");
-    rte_exit(-1, "pop mem alloc error\n");
+    rte_exit(-1, "pop mem init error\n");
   }
 
-  printf("pop_buf_alloc\n");
+  printf("pop_buf_alloc: %ld bytes\n", size);
   buf = pop_buf_alloc(mem, size);
+  if (!buf) {
+	  perror("pop_buf_alloc");
+	  rte_exit(-1, "pop mem alloc error\n");
+  }
 
-  printf("pop_buf_put");
+  printf("pop_buf_put\n");
   pop_buf_put(buf, size);
 
-  printf("pop_buf_put finished");
+  printf("pop_buf_put finished\n");
 
   db.is_hp = 1;
   db.data = pop_buf_data(buf);

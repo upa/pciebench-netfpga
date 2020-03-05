@@ -346,11 +346,11 @@ int main(int argc, char **argv)
     total_size = NUMBER_PAGES ?
       NUMBER_PAGES * hugepage_size() : hugepage_number() * hugepage_size();
   } else {
-	  printf("ok, use boogiepop from %s\n", args.pop_pci);
-      pmem = getFreePopPages(args.pop_pci);
-      total_size = pop_size;	/* yeah, hard coded. 512MB */
-      printf("pop returns %p\n", pmem);
-    }
+    printf("ok, use boogiepop from %s\n", args.pop_pci);
+    pmem = getFreePopPages(args.pop_pci);
+    total_size = pop_size;	/* yeah, hard coded. 512MB */
+    printf("pop returns %p\n", pmem);
+  }
 #else
   pmem = getFreePages(NUMBER_PAGES); // Get a buffer in kernel space (NPAGES*PAGE_SIZE = NPAGES*1GB)
   total_size = NUMBER_PAGES * KERNEL_PAGE_SIZE;
@@ -429,6 +429,9 @@ int main(int argc, char **argv)
 
       if (dlist[i].length * dlist[i].number_of_tlps >= dlist[i].buffer_size) {
         fprintf(fname, "[ERROR] The number of requested TLPs will exceed the buffer size\n");
+	fprintf(fname, "[ERROR] len=%ld, nTLPs=%ld, buffer_size=%ld\n",
+		dlist[i].length, dlist[i].number_of_tlps,
+		dlist[i].buffer_size);
         success = 0;
       } else {
         fprintf(fname, "SEQ,");
